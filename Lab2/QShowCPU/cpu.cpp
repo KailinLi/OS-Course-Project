@@ -18,13 +18,6 @@ CPU::CPU(QWidget *parent)
 
 void CPU::showCPU()
 {
-//    QTime time = QTime::currentTime();
-//    QString text = time.toString("hh:mm:ss");
-//    if ((time.second() % 2) == 0) {
-//        text[2] = ' ';
-//        text[5] = ' ';
-//    }
-//    display(text);
     FILE *fp = fopen("/proc/stat", "r");
     if (fp == NULL) {
         fputs("Open file error\n", stderr);
