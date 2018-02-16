@@ -2564,26 +2564,37 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
 }
 #endif /* CONFIG_COMPAT */
 
-//#include <linux/init.h>
-//#include <linux/module.h>
-//#include <linux/fcntl.h>
-#include <asm/segment.h>
-#include <linux/buffer_head.h>
-asmlinkage long sys_mycopyfile(const char *sFile, const char *dFile) {
-	char *buffer;
-	struct file *rfilp = NULL;
-	struct file *wfilp = NULL;
-	mm_segment_t old_fs = get_fs();
-	set_fs(KERNEL_DS);
-	wfilp = filp_open(sFile, O_WRONLY|O_CREAT, 0644);
-	rfilp = filp_open(dFile, O_RDONLY, 0644);
-	off_t fsize = rfilp->f_path.dentry->d_inode->i_size;
-	buffer = (char *)kmalloc(fsize, GFP_ATOMIC);
-	rfilp->f_op->read(rfilp, buffer, fsize, &(rfilp->f_pos));
-	wfilp->f_op->write(wfilp, buffer, fsize, &(wfilp->f_pos));
-	set_fs(old_fs);
-	kfree(buffer);
-	filp_close(rfilp, NULL);
-	filp_close(wfilp, NULL);
-	return 0;
-}
+asmlinkage int sys_mysyscall(const char* s_file, const char* t_file) { 
+    int bytes_read, bytes_write; 
+    int from_fd, to_fd;
+    char buffer[100]; 
+    char *ptr;
+    mm_segment_t old_fs;   
+    old_fs = get_fs();
+    set_fs(KERNEL_DS); 
+    if ((from_fd = sys_open(s_file, O_RDONLY, 0)) == -1)    
+        return -1;
+    if ((to_fd = sys_open(t_file, O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR)) == -1)    
+        return -2;
+    while(bytes_read = sys_read(from_fd, buffer, 1)) {  
+        if((bytes_read == -1))
+			break;  
+        else if(bytes_read > 0) {   
+            ptr = buffer; 
+            while(bytes_write = sys_write(to_fd, ptr, bytes_read)) {  
+                if((bytes_write == -1))
+					break;  
+                else if(bytes_write == bytes_read)
+					break;  
+                else if(bytes_write > 0) {  
+                    ptr += bytes_write;  
+                    bytes_read -= bytes_write;  
+                }  
+            } 
+            if(bytes_write == -1)
+				break; 
+        }  
+    } 
+    set_fs(old_fs);  
+    return 0; 
+} 
