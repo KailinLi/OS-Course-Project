@@ -21,7 +21,6 @@ static ssize_t mydev_read(struct file *file, char __user *buf, size_t count, lof
 static ssize_t mydev_write(struct file *file, const char __user *buf, size_t count, loff_t *f_pos); 
  
 static struct file_operations mydev_fops = {
-    .owner = THIS_MODULE,
     .read = mydev_read, 
     .write = mydev_write, 
     .open = mydev_open, 
@@ -30,6 +29,7 @@ static struct file_operations mydev_fops = {
  
 static int mydev_open(struct inode *inode, struct file *filp) 
 { 
+    printk(KERN_ALERT "Opening...\n"); 
     printk("\nMain device is %d, and the slave device is %d\n", MAJOR(inode->i_rdev), MINOR(inode->i_rdev)); 
     if (open_nr == 0) { 
         open_nr++;
