@@ -6,26 +6,26 @@
 #include <unistd.h>
 #include <sys/wait.h>
 int main(void) { 
-    int fd; 
+    FILE  *fp; 
     char buf[1024]; 
     char get[1024]; 
     memset(get, 0, sizeof(get)); 
     memset(buf, 0, sizeof(buf)); 
     printf("please enter a string you want input to mydriver:\n"); 
     scanf("%s", get);
-    fd = open("/dev/mydev", O_RDWR, S_IRUSR|S_IWUSR);
-    if (fd > 0) { 
-        read(fd, buf, sizeof(buf)); 
+    fp = fopen("/dev/mydev", "r+");
+    if (fp != NULL) { 
+        fread(buf, sizeof(char), sizeof(buf), fp); 
         printf("The message in mydriver now is: %s\n", buf); 
-        write(fd, get, sizeof(get)); 
-        read(fd, buf, sizeof(buf)); 
+        fwrite(get, sizeof(char), sizeof(get), fp); 
+        fread(buf, sizeof(char), sizeof(buf), fp); 
         printf("The message changed to: %s\n", buf); 
         sleep(1); 
     }  
     else { 
         printf("OMG..."); 
-        return -1; 
+        return -1;
     }
-    close(fd);
+    fclose(fp);
     return 0; 
 } 
