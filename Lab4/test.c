@@ -3,29 +3,37 @@
 #include <string.h> 
 #include <stdio.h> 
 #include <fcntl.h> 
-#include <unistd.h>
-#include <sys/wait.h>
-int main(void) { 
-    FILE  *fp; 
+ 
+int main(void) 
+{ 
+    int fd; 
     char buf[1024]; 
     char get[1024]; 
+ 
     memset(get, 0, sizeof(get)); 
     memset(buf, 0, sizeof(buf)); 
     printf("please enter a string you want input to mydriver:\n"); 
-    scanf("%s", get);
-    fp = fopen("/dev/mydev", "r+");
-    if (fp != NULL) { 
-        fread(buf, sizeof(char), sizeof(buf), fp); 
+    gets(get); 
+ 
+    fd = open("/dev/mydriver", O_RDWR, S_IRUSR|S_IWUSR);//打开设备 
+ 
+    if (fd > 0) { 
+        read(fd, &buf, sizeof(buf)); 
         printf("The message in mydriver now is: %s\n", buf); 
-        fwrite(get, sizeof(char), sizeof(get), fp); 
-        fread(buf, sizeof(char), sizeof(buf), fp); 
+ 
+        //将输入写入设备 
+        write(fd, &get, sizeof(get)); 
+        //读出设备的信息并打印 
+        read(fd, &buf, sizeof(buf)); 
         printf("The message changed to: %s\n", buf); 
         sleep(1); 
     }  
     else { 
         printf("OMG..."); 
-        return -1;
-    }
-    fclose(fp);
+        return -1; 
+    } 
+ 
+    close(fd);//释放设备 
+ 
     return 0; 
 } 
