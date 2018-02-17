@@ -21,7 +21,7 @@ static ssize_t mydev_read(struct file *file, char __user *buf, size_t count, lof
 static ssize_t mydev_write(struct file *file, const char __user *buf, size_t count, loff_t *f_pos); 
  
 static struct file_operations mydev_fops = {
-    .owner = THIS_MODULE;
+    .owner = THIS_MODULE,
     .read = mydev_read, 
     .write = mydev_write, 
     .open = mydev_open, 
