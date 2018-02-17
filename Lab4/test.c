@@ -13,7 +13,7 @@ int main(void) {
     memset(buf, 0, sizeof(buf)); 
     printf("please enter a string you want input to mydriver:\n"); 
     scanf("%s", get);
-    fd = open("/dev/mydriver", O_RDWR, S_IRUSR|S_IWUSR);
+    fd = open("/dev/mydev", O_RDWR, S_IRUSR|S_IWUSR);
     if (fd > 0) { 
         read(fd, buf, sizeof(buf)); 
         printf("The message in mydriver now is: %s\n", buf); 
