@@ -1,0 +1,139 @@
+ls
+ls
+mkdir Desktop
+mkdir Documents
+ls
+ls
+gcc -v
+uname -r
+git
+pacman -S git
+dhcpcd 
+sudo dhcpcd 
+ping www.bing.com
+pacman -S git
+sudo pacman -S git
+ls
+shutdown -h now
+ls
+sudo pacman -S xmlto docbook-xsl kmod inetutils bc
+dhcpcd 
+sudo dhcpcd 
+sudo pacman -S xmlto docbook-xsl kmod inetutils bc
+mkdir ~/kernelbuild
+cd kernelbuild/
+ls
+uname -r
+wget https://mirrors.tuna.tsinghua.edu.cn/kernel/v4.x/linux-4.15.3/tar.xz
+curl -O https://mirrors.tuna.tsinghua.edu.cn/kernel/v4.x/linux-4.15.3/tar.xz
+ls
+ls
+ls -a
+ls -l
+rm tar.xz 
+ls
+curl -O https://mirrors.tuna.tsinghua.edu.cn/kernel/v4.x/linux-4.15.3.tar.xz
+ls
+tar -xvJf linux-4.15.3.tar.xz 
+cd
+cd Documents/
+ls
+git clone https://github.com/KailinLi/OS-Course-Project.git
+ls
+ls
+cd OS-Course-Project/
+ls
+cd Lab3/
+ls
+cd
+cd  kernelbuild/
+ls
+cd linux-4.15.3
+ls
+vim kernel/sys.c ~/Documents/OS-Course-Project/Lab3/sys.c 
+vim kernel/sys.c 
+vim arch/x86/entry/syscalls/syscall_64.tbl 
+vim include/linux/syscalls.h 
+make clean
+make mrproper
+make localmodconfig
+make localmodconfig
+rm .config
+make localmodconfig
+ls
+ls -a
+time make -j4
+sudo make modules_install
+cd /lib/modules
+ls
+ls -l
+shutdown -h now
+ls
+cd kernelbuild/
+ls
+cd linux-4.15.3
+ls
+sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-linux-4.15.3
+sudo mkinitcpio -k 4.15.3 -c /etc/mkinitcpio.conf -g /boot/initramfs-linux-4.15.3.img
+sudo mkinitcpio -k linux-4.15.3 -c /etc/mkinitcpio.conf -g /boot/initramfs-linux-4.15.3.img
+sudo mkinitcpio -k 4.15.3-ARCH -c /etc/mkinitcpio.conf -g /boot/initramfs-linux-4.15.3.img
+sudo mkinitcpio -k 4.15.3-ARCH -g /boot/initramfs-linux-4.15.3.img
+ls
+ls -a
+vim .config
+uname -r
+sudo mkinitcpio -k 4.15.3-ARCH -g /boot/initramfs-linux-4.15.3.img
+ls /boot/
+sudo mkinitcpio -k 4.15.3-ARCH -g /boot/initramfs-linux-4.15.3.img
+sudo cp System.map /boot/System.map-linux-4.15.3
+sudo pacman -S grub
+grub-install --target=i386-pc /dev/sda
+sudo grub-install --target=i386-pc /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+ln -sf /boot/System.map-linux-4.15.3 /boot/System.map
+sudo ln -sf /boot/System.map-linux-4.15.3 /boot/System.map
+grub-install --target=i386-pc /dev/sda
+sudo grub-install --target=i386-pc /dev/sda
+sudo grub-install --target=i386-pc /dev/sda
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+sudo reboot
+ls
+uname -r
+cd Documents/
+ls
+cd OS-Course-Project/
+ls
+cd Lab3
+ls
+vim test.c 
+ls
+gcc test.c 
+vim test.c 
+gcc test.c 
+vim test.c 
+gcc test.c 
+ls
+vim input.txt
+touch output.txt
+ls
+./a.out input.txt output.txt 
+ls
+md5sum input.txt 
+md5sum output.txt 
+cd ..
+git push
+dhcpcd 
+sudo dhcpcd 
+git push
+git push
+git push
+git add *
+git commit -m "Finish Lab3"
+git config --global user.email "likailinhust@gmail.com"
+git config --global user.name "likailin"
+git commit -m "Finish Lab3"
+git push
+cd
+ls
+shutdown -h now

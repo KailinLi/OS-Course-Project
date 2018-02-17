@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define MYCOPYFILE 233
+#include <sys/syscall.h>
+#include <unistd.h>
+#define MYCOPYFILE 333
 int main (int argc, char *argv[]) {
     if (argc != 3) {
         fputs("argument error\n", stderr);
