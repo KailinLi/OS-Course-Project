@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+
+typedef uint16_t block_t;
 
 typedef struct I_node {
     uint16_t i_size;
@@ -12,12 +15,15 @@ typedef struct I_node {
     uint8_t i_right[3];
     uint8_t i_uid;
     uint8_t i_gid;
-    uint16_t i_block[8];
+    block_t i_block[8];
     uint8_t i_fill[6];
 } i_node;
 
 extern uint8_t i_bitmap[1 << 13];
 extern uint8_t b_bitmap[1 << 13];
+
+extern i_node i_nodes[1 << 16];
+
 extern FILE *fp;
 
 int initSpace();
