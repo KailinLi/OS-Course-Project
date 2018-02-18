@@ -13,7 +13,8 @@
 
 Explorer::Explorer(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Explorer)
+    ui(new Ui::Explorer),
+    getSysMes(false)
 {
     ui->setupUi(this);
     ui->tableWidget->setColumnWidth (0, 150);
@@ -41,6 +42,8 @@ void Explorer::refreshData()
     int index = ui->tabWidget->currentIndex ();
     if (index == 0)
         updateBase ();
+    else if (index == 2)
+        updateSys();
 }
 
 void Explorer::changeTab(int index)
@@ -49,7 +52,11 @@ void Explorer::changeTab(int index)
         ui->killPushButton->show ();
         updateProcess();
     }
-    else if (index == 0) {
+    else if (index == 2) {
+        ui->killPushButton->hide();
+        updateSys ();
+    }
+    else {
         ui->killPushButton->hide ();
         updateBase();
     }
@@ -123,6 +130,7 @@ void Explorer::updateProcess()
                 }
                 ignore[8] = '\t';
                 sscanf (ignore, "Threads: %d", &threads);
+                fclose(fp);
                 ui->tableWidget->insertRow (0);
                 QTableWidgetItem *nameItem = new QTableWidgetItem(QString::fromStdString (std::string(name, name + strlen(name))));
                 QTableWidgetItem *pidItem = new QTableWidgetItem(QString::number (pid));
@@ -164,4 +172,61 @@ void Explorer::killProcess()
         msgBox.setText("Cannot kill this process");
         msgBox.exec();
     }
+}
+
+void Explorer::updateSys()
+{
+    char buffer[100];
+    FILE *fp;
+    if (!getSysMes) {
+        fp = fopen("/proc/sys/kernel/hostname", "r");
+        if (fp == NULL) {
+            fputs("Open file error\n", stderr);
+            return;
+        }
+        fscanf (fp, "%s", buffer);
+        fclose(fp);
+        ui->sHostNameLabel->setText (QString::fromStdString (std::string(buffer, buffer + strlen(buffer))));
+
+        fp = fopen("/proc/version", "r");
+        if (fp == NULL) {
+            fputs("Open file error\n", stderr);
+            return;
+        }
+        fscanf(fp, "%*s %*s %s", buffer);
+        fclose(fp);
+        ui->sVersionLabel->setText (QString::fromStdString (std::string(buffer, buffer + strlen(buffer))));
+
+        fp = fopen("/proc/cpuinfo", "r");
+        if (fp == NULL) {
+            fputs("Open file error\n", stderr);
+            return;
+        }
+        fgets(buffer, sizeof(buffer), fp);
+        fscanf (fp, "vendor_id : %s\n", buffer);
+        ui->sClassCpuLabe->setText ((QString::fromStdString (std::string(buffer, buffer + strlen(buffer)))));
+        for (int i = 0; i < 2; ++i) fgets(buffer, sizeof(buffer), fp);
+        fscanf (fp, "model name : %99[^\n]\n", buffer);
+        ui->sCpuLabel->setText ((QString::fromStdString (std::string(buffer, buffer + strlen(buffer)))));
+        fclose(fp);
+    }
+
+    fp = fopen("/proc/uptime", "r");
+    if (fp == NULL) {
+        fputs("Open file error\n", stderr);
+        return;
+    }
+    float f_totalTime, f_runTime;
+    int totalTime, runTime;
+    fscanf(fp, "%f %f", &f_runTime, &f_totalTime);
+//    f_runTime *= 100;
+//    f_totalTime *= 100;
+    totalTime = (int)f_totalTime;
+    runTime = (int)f_runTime;
+    ui->sRunLabel->setText (tr("%1天%2时%3分%4秒").arg(runTime/86400).
+                            arg((runTime%86400)/3600).arg((runTime%3600)/60).arg (runTime%60));
+    ui->sBeginLabel->setText (tr("%1天%2时%3分%4秒").arg(totalTime/86400)
+                              .arg((totalTime%86400)/3600).arg((totalTime%3600)/60).arg (totalTime%60));
+    fclose(fp);
+    getSysMes = true;
 }

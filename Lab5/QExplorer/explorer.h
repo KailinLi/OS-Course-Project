@@ -19,13 +19,14 @@ public:
 private:
     Ui::Explorer *ui;
     QTimer timer;
-
+    bool getSysMes;
 private:
     void refreshData();
     void changeTab(int index);
     void updateBase();
     void updateProcess();
     void killProcess();
+    void updateSys();
 };
 
 #endif // EXPLORER_H

@@ -27,7 +27,7 @@
    </property>
    <widget class="QWidget" name="tab_0">
     <attribute name="title">
-     <string>基本信息</string>
+     <string>实时信息</string>
     </attribute>
     <widget class="QGroupBox" name="cpuGroupBox">
      <property name="geometry">
@@ -159,6 +159,157 @@
        <string>线程数</string>
       </property>
      </column>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_2">
+    <attribute name="title">
+     <string>基本信息</string>
+    </attribute>
+    <widget class="QGroupBox" name="sysGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>411</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>系统</string>
+     </property>
+     <widget class="QWidget" name="formLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>391</width>
+        <height>112</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="sysFormLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="showHostNameLabel">
+         <property name="text">
+          <string>主机名：</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="showVersionLabel">
+         <property name="text">
+          <string>系统版本：</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="showCpuLabel">
+         <property name="text">
+          <string>CPU：</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="showClassCpuLabe">
+         <property name="text">
+          <string>CPU类型：</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="sHostNameLabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="sVersionLabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="sCpuLabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="sClassCpuLabe">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="timeGroupBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>200</y>
+       <width>411</width>
+       <height>91</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>时间</string>
+     </property>
+     <widget class="QWidget" name="formLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>391</width>
+        <height>54</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="timeFormLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="showBeginLabel">
+         <property name="text">
+          <string>系统启动时间：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="showRunLabel">
+         <property name="text">
+          <string>系统运行时间：</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="sBeginLabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="sRunLabel">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </widget>
   </widget>
