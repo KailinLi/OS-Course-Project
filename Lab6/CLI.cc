@@ -4,5 +4,5 @@
 #include "FSAPI.h"
 
 int main (int argc, char *argv[]) {
-    printf("Hello, World!");
+    printf("%ld\n", sizeof(i_node));
 }
