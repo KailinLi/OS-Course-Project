@@ -16,6 +16,12 @@ typedef struct I_node {
     uint8_t i_fill[6];
 } i_node;
 
+extern uint8_t i_bitmap[1 << 13];
+extern uint8_t b_bitmap[1 << 13];
+extern FILE *fp;
+
 int initSpace();
+int openFp();
+int writeThrough();
 
 #endif // STOREMANAGER_H
