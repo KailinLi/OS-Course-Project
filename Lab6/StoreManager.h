@@ -2,6 +2,7 @@
 #define STOREMANAGER_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 
 typedef struct I_node {
@@ -14,5 +15,7 @@ typedef struct I_node {
     uint16_t i_block[8];
     uint8_t i_fill[6];
 } i_node;
+
+int initSpace();
 
 #endif // STOREMANAGER_H
