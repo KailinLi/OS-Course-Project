@@ -1,7 +1,8 @@
 #include "StoreManager.h"
 
-#define INODESIZE 32
-#define BLOCKSIZE 1024
+const int INODESIZE = 32;
+const int BLOCKSIZE = 1024;
+const int HEADSIZE = ((1 << 3) * 2 + (1 << 11)) * BLOCKSIZE;
 
 uint8_t i_bitmap[1 << 13];
 uint8_t b_bitmap[1 << 13];
@@ -18,15 +19,15 @@ int initSpace() {
         return -1;
     }
     uint8_t buffer[BLOCKSIZE];
-    memset(buffer, 0xff, sizeof(buffer));
-    for (int i = 0; i < 16; ++i) {
-        if (fwrite(buffer, sizeof(uint8_t), BLOCKSIZE, tmpFp) != BLOCKSIZE) {
-            fputs("write bitmap error\n", stderr);
-            return -1;
-        }
-    }
+    // memset(buffer, 0xff, sizeof(buffer));
+    // for (int i = 0; i < 16; ++i) {
+    //     if (fwrite(buffer, sizeof(uint8_t), BLOCKSIZE, tmpFp) != BLOCKSIZE) {
+    //         fputs("write bitmap error\n", stderr);
+    //         return -1;
+    //     }
+    // }
     memset(buffer, 0, sizeof(buffer));
-    for (int i = 0; i < (1 << 16) - 16; ++i) {
+    for (int i = 0; i < (1 << 16); ++i) {
         if (fwrite(buffer, sizeof(uint8_t), BLOCKSIZE, tmpFp) != BLOCKSIZE) {
             fputs("write error\n", stderr);
             return -1;

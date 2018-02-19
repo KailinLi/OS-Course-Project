@@ -7,6 +7,8 @@
 #include <string.h>
 
 typedef uint16_t block_t;
+typedef uint16_t i_index_t;
+typedef uint16_t b_index_t;
 
 typedef struct I_node {
     uint16_t i_size;
@@ -18,6 +20,9 @@ typedef struct I_node {
     block_t i_block[8];
     uint8_t i_fill[6];
 } i_node;
+
+extern const int BLOCKSIZE;
+extern const int HEADSIZE;
 
 extern uint8_t i_bitmap[1 << 13];
 extern uint8_t b_bitmap[1 << 13];

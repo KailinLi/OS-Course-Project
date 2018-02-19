@@ -3,4 +3,6 @@
 
 #include "FSBase.h"
 
+int fs_init();
+
 #endif // FSAPI_H
