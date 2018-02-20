@@ -1,5 +1,7 @@
 #include "FSAPI.h"
 
+char inputName[30];
+
 int fs_init() {
     printf("Making dev...\n");
     if (initSpace() == -1)
@@ -14,5 +16,23 @@ int fs_init() {
         fputs("root error\n", stderr);
         return -1;
     }
-    
+    strcpy(inputName, ".");
+    if (s_addEntry(i, inputName, i) == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    strcpy(inputName, "..");
+    if (s_addEntry(i, inputName, i) == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    strcpy(current, "/");
+    current_i = i;
+    return 0;
+}
+
+char * fs_pwd() {
+    char * buffer = (char *)malloc(sizeof(char) * (strlen(current) + 1));
+    strcpy(buffer, current);
+    return buffer;
 }

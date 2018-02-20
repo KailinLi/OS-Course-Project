@@ -2,7 +2,7 @@
 
 const int INODESIZE = 32;
 const int BLOCKSIZE = 1024;
-const int HEADSIZE = ((1 << 3) * 2 + (1 << 11)) * BLOCKSIZE;
+const int HEADSIZE = ((1 << 3) * 2 + (1 << 11));
 
 uint8_t i_bitmap[1 << 13];
 uint8_t b_bitmap[1 << 13];

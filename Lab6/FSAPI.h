@@ -3,6 +3,12 @@
 
 #include "FSBase.h"
 
+extern char inputName[30];
+
 int fs_init();
+char * fs_pwd();
+
+// d_entry * fs_ls();
+
 
 #endif // FSAPI_H
