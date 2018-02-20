@@ -20,5 +20,6 @@ int s_addEntry(i_index_t, char *, i_index_t);
 d_entry * s_ls(i_index_t, int *);
 
 int s_newFile(i_index_t, char *, i_index_t *);
+int s_unlinkFile(i_index_t, i_index_t, uint16_t);
 
 #endif // FSBASE_H

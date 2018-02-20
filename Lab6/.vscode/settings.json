@@ -4,6 +4,12 @@
         "__locale": "cpp",
         "iterator": "cpp",
         "typeinfo": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "bitset": "cpp",
+        "initializer_list": "cpp",
+        "memory": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "utility": "cpp"
     }
 }
