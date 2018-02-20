@@ -12,7 +12,7 @@ int fs_init() {
     printf("Making root...\n");
     i_index_t i;
     b_index_t b;
-    if (s_newFileNode(&i, &b) == -1) {
+    if (s_newNode(&i, &b) == -1) {
         fputs("root error\n", stderr);
         return -1;
     }

@@ -12,11 +12,13 @@ typedef struct D_entry {
     char name[30];
 } d_entry;
 
-int s_newFileNode(i_index_t *, b_index_t *);
+int s_newNode(i_index_t *, b_index_t *);
 void s_cleanINode(i_index_t);
 
 int s_addEntry(i_index_t, char *, i_index_t);
 
 d_entry * s_ls(i_index_t, int *);
+
+int s_newFile(i_index_t, char *, i_index_t *);
 
 #endif // FSBASE_H
