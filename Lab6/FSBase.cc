@@ -1,7 +1,9 @@
 #include "FSBase.h"
 
-char current[4096];
-i_index_t current_i;
+// char current[140][30];
+// uint16_t current_p = 0;
+path current;
+// i_index_t current_i;
 const int ENTRYSIZE = (1 << 5);
 
 int s_newNode(i_index_t *i, b_index_t *b) {
@@ -67,6 +69,24 @@ d_entry * s_ls(i_index_t d, int *length) {
     return list;
 }
 
+void s_delete(i_index_t d, i_index_t i, uint16_t pos) {
+    for (int k = 0; k <= i_nodes[i].i_size / BLOCKSIZE; ++k) {
+        b_free(i_nodes[i].i_block[k]);
+    }
+    uint16_t size = i_nodes[d].i_size / BLOCKSIZE;
+    uint16_t offset = i_nodes[d].i_size - (BLOCKSIZE * size) - ENTRYSIZE;
+    block_t b = i_nodes[d].i_block[size];
+    fseek(fp, b * BLOCKSIZE + offset + HEADSIZE * BLOCKSIZE, SEEK_SET);
+    uint8_t buffer[ENTRYSIZE];
+    fread(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+    b = i_nodes[d].i_block[pos / (BLOCKSIZE / ENTRYSIZE)];
+    offset = pos % (BLOCKSIZE / ENTRYSIZE);
+    fseek(fp, b * BLOCKSIZE + offset * ENTRYSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+    fwrite(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+    i_nodes[d].i_size -= ENTRYSIZE;
+    i_free(i);
+}
+
 int s_newFile(i_index_t d, char *name, i_index_t *new_i) {
     b_index_t new_b;
     if (s_newNode(new_i, &new_b) == -1) {
@@ -84,21 +104,23 @@ int s_newFile(i_index_t d, char *name, i_index_t *new_i) {
 
 int s_unlinkFile(i_index_t d, i_index_t i, uint16_t pos) {
     if (--i_nodes[i].i_nlink == 0) {
-        for (int k = 0; k <= i_nodes[i].i_size / BLOCKSIZE; ++k) {
-            b_free(i_nodes[i].i_block[k]);
-        }
-        uint16_t size = i_nodes[d].i_size / BLOCKSIZE;
-        uint16_t offset = i_nodes[d].i_size - (BLOCKSIZE * size) - ENTRYSIZE;
-        block_t b = i_nodes[d].i_block[size];
-        fseek(fp, b * BLOCKSIZE + offset + HEADSIZE * BLOCKSIZE, SEEK_SET);
-        uint8_t buffer[ENTRYSIZE];
-        fread(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
-        b = i_nodes[d].i_block[pos / (BLOCKSIZE / ENTRYSIZE)];
-        offset = pos % (BLOCKSIZE / ENTRYSIZE);
-        fseek(fp, b * BLOCKSIZE + offset * ENTRYSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
-        fwrite(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
-        i_nodes[d].i_size -= ENTRYSIZE;
-        i_free(i);
+        s_delete(d, i, pos);
+        // for (int k = 0; k <= i_nodes[i].i_size / BLOCKSIZE; ++k) {
+        //     b_free(i_nodes[i].i_block[k]);
+        // }
+        // uint16_t size = i_nodes[d].i_size / BLOCKSIZE;
+        // uint16_t offset = i_nodes[d].i_size - (BLOCKSIZE * size) - ENTRYSIZE;
+        // block_t b = i_nodes[d].i_block[size];
+        // fseek(fp, b * BLOCKSIZE + offset + HEADSIZE * BLOCKSIZE, SEEK_SET);
+        // uint8_t buffer[ENTRYSIZE];
+        // fread(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+        // b = i_nodes[d].i_block[pos / (BLOCKSIZE / ENTRYSIZE)];
+        // offset = pos % (BLOCKSIZE / ENTRYSIZE);
+        // fseek(fp, b * BLOCKSIZE + offset * ENTRYSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+        // fwrite(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+        // i_nodes[d].i_size -= ENTRYSIZE;
+        // i_free(i);
+
         // uint16_t size = i_nodes[d].i_size / ENTRYSIZE;
         // block_t current_b = i_nodes[d].i_block[0];
         // fseek(fp, current_b * BLOCKSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
@@ -113,5 +135,84 @@ int s_unlinkFile(i_index_t d, i_index_t i, uint16_t pos) {
         // }
         // size
     }
+    return 0;
+}
+
+int s_newdir(i_index_t d, char * name, i_index_t *new_i) {
+    b_index_t new_b;
+    if (s_newNode(new_i, &new_b) == -1) {
+        fputs("can not new dir\n", stderr);
+        return -1;
+    }
+    if (s_addEntry(d, name, *new_i) == -1) {
+        i_free(*new_i);
+        b_free(new_b);
+        fputs("can not new dir\n", stderr);
+        return -1;
+    }
+    char base_name[30];
+    strcpy(base_name, ".");
+    if (s_addEntry(*new_i, base_name, *new_i) == -1) {
+        i_free(*new_i);
+        b_free(new_b);
+        fputs("can not new dir\n", stderr);
+        return -1;
+    }
+    strcpy(base_name, "..");
+    if (s_addEntry(*new_i, name, d) == -1) {
+        i_free(*new_i);
+        b_free(new_b);
+        fputs("can not new dir\n", stderr);
+        return -1;
+    }
+    return 0;
+}
+
+int s_deletedir(i_index_t d, i_index_t i, uint16_t pos) {
+    --i_nodes[d].i_nlink;
+    s_delete(d, i, pos);
+    return 0;
+}
+
+int s_changedir(path * p, char * name, i_index_t i) {
+    if (!strcmp(name, ".")) {
+        return 0;
+    }
+    else if (!strcmp(name, "..")) {
+        if (p->p == 1)
+            return 0;
+        --p->p;
+        p->i = i;
+    }
+    else {
+        strcpy(p->content[p->p++], name);
+        p->i = i;
+        return 0;
+    }
+    return 0;
+}
+
+int s_handlepath(path * p, char *input) {
+    p->p = 0;
+    p->i = 0;
+    if (strlen(input) == 0) return -1;
+    int pos = 0;
+    int before_pos = 0;
+    int i = 0;
+    if (input[0] == '/') {
+        strcpy(p->content[i++], "/");
+        ++pos;
+        ++before_pos;
+    }
+    int size = strlen(input) + 1;
+    while (pos < size) {
+        while (input[pos] != '/' && input[pos] != '\0')
+            ++pos;
+        input[pos] = '\0';
+        if (pos == before_pos) return -1;
+        strcpy(p->content[i++], input + before_pos);
+        before_pos = ++pos;
+    }
+    p->p = i;
     return 0;
 }
