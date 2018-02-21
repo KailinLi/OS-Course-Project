@@ -5,6 +5,8 @@
 
 extern char inputName[30];
 
+extern const i_index_t HOMEINODE;
+
 int fs_init();
 int fs_load();
 char * fs_pwd();

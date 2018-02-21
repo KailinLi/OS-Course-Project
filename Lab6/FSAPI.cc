@@ -2,6 +2,8 @@
 
 char inputName[30];
 
+const i_index_t HOMEINODE = 0;
+
 int fs_init() {
     printf("Making dev...\n");
     if (initSpace() == -1)
@@ -38,7 +40,7 @@ int fs_load() {
         return -1;
     }
     strcpy(current.content[current.p++], "/");
-    current.i = 0;
+    current.i = HOMEINODE;
     return 0;
 }
 
@@ -64,12 +66,34 @@ char * fs_pwd() {
 
 int fs_cd(char *p) {
     path decodePath;
+    path workPath;
     // path 
     if (s_handlepath(&decodePath, p) == -1) {
         fputs("path error\n", stderr);
         return -1;
     }
     if (!strcmp(decodePath.content[0], "/")) {  // absolute path
-
+        workPath.i = HOMEINODE;
+        workPath.p = 1;
+        strcpy(workPath.content[0], "/");
+        decodePath.i = 1;
     }
+    else {
+        workPath = current; // related path
+    }
+    for (int index = decodePath.i; index < decodePath.p; ++index) {
+        i_index_t find_i;
+        uint16_t pos;
+        if (s_search(workPath.i, decodePath.content[index], &find_i, &pos) == -1) {
+            fputs("no such a directory\n", stderr);
+            return -1;
+        }
+        if (i_nodes[find_i].i_type != DIRTYPE) {
+            fputs("not a directory\n", stderr);
+            return -1;
+        }
+        s_changedir(&workPath, decodePath.content[index], find_i);
+    }
+    current = workPath;
+    return 0;
 }

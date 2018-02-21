@@ -4,6 +4,10 @@
 // uint16_t current_p = 0;
 path current;
 // i_index_t current_i;
+
+const uint8_t DIRTYPE = 0;
+const uint8_t FILETYPE = 1;
+
 const int ENTRYSIZE = (1 << 5);
 
 int s_newNode(i_index_t *i, b_index_t *b) {
@@ -99,6 +103,7 @@ int s_newFile(i_index_t d, char *name, i_index_t *new_i) {
         fputs("can not new file\n", stderr);
         return -1;
     }
+    i_nodes[*new_i].i_type = FILETYPE;
     return 0;
 }
 
@@ -159,12 +164,13 @@ int s_newdir(i_index_t d, char * name, i_index_t *new_i) {
         return -1;
     }
     strcpy(base_name, "..");
-    if (s_addEntry(*new_i, name, d) == -1) {
+    if (s_addEntry(*new_i, base_name, d) == -1) {
         i_free(*new_i);
         b_free(new_b);
         fputs("can not new dir\n", stderr);
         return -1;
     }
+    i_nodes[*new_i].i_type = DIRTYPE;
     return 0;
 }
 
@@ -215,4 +221,23 @@ int s_handlepath(path * p, char *input) {
     }
     p->p = i;
     return 0;
+}
+
+int s_search(i_index_t d, char * name, i_index_t *i, uint16_t *pos) {
+    uint16_t size = i_nodes[d].i_size / ENTRYSIZE;
+    block_t current_b = i_nodes[d].i_block[0];
+    fseek(fp, current_b * BLOCKSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+    uint8_t buffer[32];
+    int k;
+    for (k = 0; k < size; ++k) {
+        fread(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+        if (!strcmp(((char*) &buffer[2]), name)) {
+            *i = *(i_index_t *)&buffer[0];
+            *pos = k;
+            return 0;
+        }
+        if (!(k + 1) % (BLOCKSIZE / ENTRYSIZE))
+            current_b = i_nodes[d].i_block[(k + 1) / (BLOCKSIZE / ENTRYSIZE)];
+    }
+    return -1;
 }

@@ -9,12 +9,13 @@ typedef struct Path {
     i_index_t i;
 } path;
 
-// extern char current[140][30];
-// extern uint16_t current_p;
 extern path current;
 
 extern const int ENTRYSIZE;
 // extern i_index_t current_i;
+
+extern const uint8_t DIRTYPE;
+extern const uint8_t FILETYPE;
 
 typedef struct D_entry {
     i_index_t i;
@@ -39,5 +40,7 @@ int s_deletedir(i_index_t, i_index_t, uint16_t);
 int s_changedir(path *, char *, i_index_t);
 
 int s_handlepath(path *, char *);
+
+int s_search(i_index_t, char *, i_index_t*, uint16_t*);
 
 #endif // FSBASE_H
