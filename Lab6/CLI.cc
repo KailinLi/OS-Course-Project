@@ -23,42 +23,48 @@ int main (int argc, char *argv[]) {
     // fs_init();
     // fs_init();
     fs_load();
+    char input[20] = "big ";
     char name[20] = "hello";
     i_index_t i;
     s_newFile(current.i, name, &i);
     strcpy(name, "world");
     i_index_t j;
     s_newFile(current.i, name, &j);
-    s_unlinkFile(current.i, i, 2);
-    strcpy(name, "hehe");
-    s_newdir(current.i, name, &i);
-    int l;
-    d_entry *list = s_ls(0, &l);
-    for (int i = 0; i < l; ++i) {
-        puts(list[i].name);
-    }
-    free(list);
-    char *tmp  = fs_pwd();
-    puts(tmp);
-    free(tmp);
-
-    fs_cd(name);
-
+    s_write(j, input, 0);
+    strcpy(input, "cat");
+    s_write(j, input, 0);
+    s_read(j, name);
+    puts(name);
+    // s_unlinkFile(current.i, i, 2);
+    // strcpy(name, "hehe");
+    // s_newdir(current.i, name, &i);
+    // int l;
+    // d_entry *list = s_ls(0, &l);
+    // for (int i = 0; i < l; ++i) {
+    //     puts(list[i].name);
+    // }
     // free(list);
-    tmp  = fs_pwd();
-    puts(tmp);
-    free(tmp);
+    // char *tmp  = fs_pwd();
+    // puts(tmp);
+    // free(tmp);
 
-    strcpy(name, "..");
-    fs_cd(name);
-    tmp  = fs_pwd();
-    puts(tmp);
-    free(tmp);
+    // fs_cd(name);
 
-    strcpy(name, "world");
-    fs_cd(name);
-    tmp  = fs_pwd();
-    puts(tmp);
-    free(tmp);
+    // // free(list);
+    // tmp  = fs_pwd();
+    // puts(tmp);
+    // free(tmp);
+
+    // strcpy(name, "..");
+    // fs_cd(name);
+    // tmp  = fs_pwd();
+    // puts(tmp);
+    // free(tmp);
+
+    // strcpy(name, "world");
+    // fs_cd(name);
+    // tmp  = fs_pwd();
+    // puts(tmp);
+    // free(tmp);
     // writeThrough();
 }

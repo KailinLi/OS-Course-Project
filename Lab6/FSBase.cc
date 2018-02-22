@@ -241,3 +241,50 @@ int s_search(i_index_t d, char * name, i_index_t *i, uint16_t *pos) {
     }
     return -1;
 }
+
+int s_write(i_index_t i, char * input, uint16_t pos) {
+    if (i_nodes[i].i_size + strlen(input) + 1 > (1 << 13)) {
+        fputs("file is full\n", stderr);
+        return -1;
+    }
+    b_index_t b = i_nodes[i].i_block[i_nodes[i].i_size / BLOCKSIZE];
+    uint16_t leftsize = strlen(input) + 1;
+    uint16_t offset = i_nodes[i].i_size % BLOCKSIZE;
+    uint16_t leftSpace = BLOCKSIZE - offset;
+    uint16_t write_offset = 0;
+    while (leftsize > 0) {
+        if (leftsize <= leftSpace) {
+            fseek(fp, b * BLOCKSIZE + offset + HEADSIZE * BLOCKSIZE, SEEK_SET);
+            fwrite(input + write_offset, sizeof(char), leftsize, fp);
+            write_offset += leftsize;
+            i_nodes[i].i_size += leftsize;
+            leftsize = 0;
+        }
+        else {
+            fseek(fp, b * BLOCKSIZE + offset + HEADSIZE * BLOCKSIZE, SEEK_SET);
+            fwrite(input + write_offset, sizeof(char), leftSpace, fp);
+            leftsize -= leftSpace;
+            write_offset += leftSpace;
+            i_nodes[i].i_size += leftSpace;
+            b = b_alloc();
+            i_nodes[i].i_block[i_nodes[i].i_size / BLOCKSIZE] = b;
+        }
+    }
+    --i_nodes[i].i_size;    // '\0'
+    return 0;
+}
+int s_read(i_index_t i, char * output) {
+    b_index_t b;
+    uint16_t read_offset = 0;
+    int k = 0;
+    for (; k < i_nodes[i].i_size / BLOCKSIZE; ++k) {
+        b = i_nodes[i].i_block[k];
+        fseek(fp, b * BLOCKSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+        fread(output + read_offset, sizeof(char), BLOCKSIZE, fp);
+        read_offset += BLOCKSIZE;
+    }
+    b = i_nodes[i].i_block[k];
+    fseek(fp, b * BLOCKSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+    fread(output + read_offset, sizeof(char), i_nodes[i].i_size % BLOCKSIZE + 1, fp);
+    return 0;
+}

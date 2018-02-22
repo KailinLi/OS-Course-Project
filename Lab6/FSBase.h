@@ -43,4 +43,7 @@ int s_handlepath(path *, char *);
 
 int s_search(i_index_t, char *, i_index_t*, uint16_t*);
 
+int s_write(i_index_t, char *, uint16_t);
+int s_read(i_index_t, char *);
+
 #endif // FSBASE_H
