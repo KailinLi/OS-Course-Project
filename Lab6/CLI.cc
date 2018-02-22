@@ -117,6 +117,73 @@ int main (int argc, char *argv[]) {
                 continue;
             }  
         }
+        else if (!strcmp(param[0], "vim")) {
+            if (length == 1) {
+                fputs("usage: vim file ...\n", stderr);
+                continue;
+            }
+            pid_t pid;
+            strcpy(input, param[1]);
+            char *buffer = (char *)malloc(sizeof(char) * (1 << 13));
+            fs_read(input, buffer);
+            FILE *tmpfp = fopen("tmpfile", "w");
+            if (tmpfp == NULL) {
+                fputs("open file error\n", stderr);
+                free(buffer);
+                continue;
+            }
+            if (fwrite(buffer, sizeof(char), strlen(buffer) + 1, tmpfp) != strlen(buffer) + 1) {
+                fputs("copy file error\n", stderr);
+                free(buffer);
+                continue;
+            }
+            fclose(tmpfp);
+            free(buffer);
+            if ((pid = fork()) < 0) {
+                fputs("fork error\n", stderr);
+                continue;
+            }
+            else if (pid == 0) {
+                char app[] = "/usr/bin/vim";
+                strcpy(param[1], "/usr/bin/vim");
+                strcpy(param[2], "./tmpfile");
+                char * const argv[] = {param[1], param[2], NULL};
+                if (execv(app, argv) < 0) {
+                    perror("execv error");
+                }
+            }
+            else {
+                if (waitpid(pid, NULL, 0) < 0) {
+                    fputs("waitpid error\n", stderr);
+                    continue;
+                }
+                tmpfp = fopen("tmpfile", "r");
+                if (tmpfp == NULL) {
+                    fputs("open file error\n", stderr);
+                    continue;
+                }
+                fseek(tmpfp, 0, SEEK_END);
+                unsigned int size = ftell(tmpfp);
+                rewind(tmpfp);
+                buffer = (char *)malloc(sizeof(char) * size);
+                if (buffer == NULL) {
+                    fputs("Malloc error\n", stderr);
+                    continue;
+                }
+                if (size != fread(buffer, sizeof(char), size, tmpfp)) {
+                    fputs("Read error\n", stderr);
+                    continue;
+                }
+                fclose(tmpfp);
+                if (remove("./tmpfile") != 0) {
+                    fputs("can not delete tmpfile\n", stderr);
+                    free(buffer);
+                    continue;
+                }
+                fs_write(input, buffer, 0);
+                free(buffer);
+            }
+        }
         else
             printf("command not found\n");
     }

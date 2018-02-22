@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "Color.h"
 
 typedef uint16_t block_t;
