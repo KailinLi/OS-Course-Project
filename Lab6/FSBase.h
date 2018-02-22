@@ -17,6 +17,12 @@ extern const int ENTRYSIZE;
 extern const uint8_t DIRTYPE;
 extern const uint8_t FILETYPE;
 
+extern const uint8_t uid;
+extern const uint8_t gid;
+
+extern uint8_t default_file_right[3];
+extern uint8_t default_dir_right[3];
+
 typedef struct D_entry {
     i_index_t i;
     char name[30];

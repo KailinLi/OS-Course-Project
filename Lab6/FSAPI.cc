@@ -4,6 +4,9 @@ char inputName[30];
 
 const i_index_t HOMEINODE = 0;
 
+char uid_name[20][30];
+char gid_name[20][30];
+
 int fs_init() {
     printf("Making dev...\n");
     if (initSpace() == -1)
@@ -23,6 +26,8 @@ int fs_init() {
         fputs("error\n", stderr);
         return -1;
     }
+    for (int k = 0; k < 3; ++k)
+        i_nodes[i].i_right[k] = default_dir_right[k];
     strcpy(inputName, "..");
     if (s_addEntry(i, inputName, i) == -1) {
         fputs("error\n", stderr);
@@ -39,6 +44,8 @@ int fs_load() {
         fputs("miss the dev file??\n", stderr);
         return -1;
     }
+    strcpy(uid_name[0], "root");
+    strcpy(gid_name[0], "wheel");
     strcpy(current.content[current.p++], "/");
     current.i = HOMEINODE;
     return 0;
@@ -64,6 +71,32 @@ char * fs_pwd() {
     return buffer;
 }
 
+int fs_decode(path * decodePath, path * workPath, int pos) {
+    if (!strcmp((*decodePath).content[0], "/")) {  // absolute path
+        (*workPath).i = HOMEINODE;
+        (*workPath).p = 1;
+        strcpy((*workPath).content[0], "/");
+        (*decodePath).i = 1;
+    }
+    else {
+        *workPath = current; // related path
+    }
+    for (int index = (*decodePath).i; index < (*decodePath).p - pos; ++index) {
+        i_index_t find_i;
+        uint16_t pos;
+        if (s_search((*workPath).i, (*decodePath).content[index], &find_i, &pos) == -1) {
+            fputs("no such a directory\n", stderr);
+            return -1;
+        }
+        if (i_nodes[find_i].i_type != DIRTYPE) {
+            fputs("not a directory\n", stderr);
+            return -1;
+        }
+        s_changedir(workPath, (*decodePath).content[index], find_i);
+    }
+    return 0;
+}
+
 int fs_cd(char *p) {
     path decodePath;
     path workPath;
@@ -72,28 +105,207 @@ int fs_cd(char *p) {
         fputs("path error\n", stderr);
         return -1;
     }
-    if (!strcmp(decodePath.content[0], "/")) {  // absolute path
-        workPath.i = HOMEINODE;
-        workPath.p = 1;
-        strcpy(workPath.content[0], "/");
-        decodePath.i = 1;
-    }
-    else {
-        workPath = current; // related path
-    }
-    for (int index = decodePath.i; index < decodePath.p; ++index) {
-        i_index_t find_i;
-        uint16_t pos;
-        if (s_search(workPath.i, decodePath.content[index], &find_i, &pos) == -1) {
-            fputs("no such a directory\n", stderr);
-            return -1;
-        }
-        if (i_nodes[find_i].i_type != DIRTYPE) {
-            fputs("not a directory\n", stderr);
-            return -1;
-        }
-        s_changedir(&workPath, decodePath.content[index], find_i);
-    }
+    if (fs_decode(&decodePath, &workPath, 0) == -1)
+        return -1;
+    // if (!strcmp(decodePath.content[0], "/")) {  // absolute path
+    //     workPath.i = HOMEINODE;
+    //     workPath.p = 1;
+    //     strcpy(workPath.content[0], "/");
+    //     decodePath.i = 1;
+    // }
+    // else {
+    //     workPath = current; // related path
+    // }
+    // for (int index = decodePath.i; index < decodePath.p; ++index) {
+    //     i_index_t find_i;
+    //     uint16_t pos;
+    //     if (s_search(workPath.i, decodePath.content[index], &find_i, &pos) == -1) {
+    //         fputs("no such a directory\n", stderr);
+    //         return -1;
+    //     }
+    //     if (i_nodes[find_i].i_type != DIRTYPE) {
+    //         fputs("not a directory\n", stderr);
+    //         return -1;
+    //     }
+    //     s_changedir(&workPath, decodePath.content[index], find_i);
+    // }
     current = workPath;
     return 0;
+}
+
+int fs_ls(char * p, uint8_t mask) {
+    path decodePath;
+    path workPath;
+    d_entry *entry;
+    int length;
+    if (s_handlepath(&decodePath, p) == -1) {
+        entry = s_ls(current.i, &length);
+    }
+    else {
+        // if (!strcmp(decodePath.content[0], "/")) {  // absolute path
+        // workPath.i = HOMEINODE;
+        // workPath.p = 1;
+        // strcpy(workPath.content[0], "/");
+        // decodePath.i = 1;
+        // }
+        // else {
+        //     workPath = current; // related path
+        // }
+        // for (int index = decodePath.i; index < decodePath.p; ++index) {
+        //     i_index_t find_i;
+        //     uint16_t pos;
+        //     if (s_search(workPath.i, decodePath.content[index], &find_i, &pos) == -1) {
+        //         fputs("no such a directory\n", stderr);
+        //         return -1;
+        //     }
+        //     if (i_nodes[find_i].i_type != DIRTYPE) {
+        //         fputs("not a directory\n", stderr);
+        //         return -1;
+        //     }
+        //     s_changedir(&workPath, decodePath.content[index], find_i);
+        // }
+        if (fs_decode(&decodePath, &workPath, 0) == -1)
+            return -1;
+        entry = s_ls(workPath.i, &length);
+    }
+    if (mask & 1) { // -l
+        int i;
+        if (mask & (1 << 1))    // -a
+            i = 0;
+        else
+            i = 2;
+        for (; i < length; ++i) {
+            printf("%s", (i_nodes[entry[i].i].i_type == DIRTYPE) ? "d" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[0] & (1 << 2)) ? "r" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[0] & (1 << 1)) ? "w" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[0] & 1) ? "x" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[1] & (1 << 2)) ? "r" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[1] & (1 << 1)) ? "w" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[1] & 1) ? "x" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[2] & (1 << 2)) ? "r" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[2] & (1 << 1)) ? "w" : "-");
+            printf("%s", (i_nodes[entry[i].i].i_right[2] & 1) ? "x " : "- ");
+            printf("%2d ", i_nodes[entry[i].i].i_nlink);
+            printf("%8s ", uid_name[i_nodes[entry[i].i].i_uid]);
+            printf("%8s ", gid_name[i_nodes[entry[i].i].i_gid]);
+            printf("%5d ", i_nodes[entry[i].i].i_size);
+            printf("%s\n", entry[i].name);
+        }
+        free(entry);
+    }
+    else {
+        int i;
+        if (mask & (1 << 1))
+            i = 0;
+        else
+            i = 2;
+        for (; i < length; ++i) {
+            printf("%10s ", entry[i].name);
+            if (!(i % 2))
+                printf("\n");
+        }
+        printf("\n");
+        free(entry);
+    }
+    return 0;
+}
+
+int fs_mkdir (char * p) {
+    path decodePath;
+    path workPath;
+    if (s_handlepath(&decodePath, p) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decodePath, &workPath, 1) == -1)
+        return -1;
+    uint16_t find_p;
+    i_index_t find_i;
+    if (s_search(workPath.i, decodePath.content[decodePath.p - 1], &find_i, &find_p) != -1) {
+        fputs("directory exists\n", stderr);
+        return -1;
+    }
+    if (s_newdir(workPath.i, decodePath.content[decodePath.p - 1], &find_i) == -1) {
+        return -1;
+    }
+    return 0;
+}
+
+int fs_rmdir(char * p) {
+    path decodePath;
+    path workPath;
+    if (s_handlepath(&decodePath, p) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decodePath, &workPath, 1) == -1)
+        return -1;
+    uint16_t find_p;
+    i_index_t find_i;
+    if (s_search(workPath.i, decodePath.content[decodePath.p - 1], &find_i, &find_p) == -1) {
+        fputs("No such directory\n", stderr);
+        return -1;
+    }
+    if (i_nodes[find_i].i_type != DIRTYPE) {
+        fputs("not a directory\n", stderr);
+        return -1;
+    }
+    if (s_deletedir(workPath.i, find_i, find_p) == -1) {
+        return -1;
+    }
+    return 0;
+}
+
+int fs_touch(char * p) {
+    path decodePath;
+    path workPath;
+    if (s_handlepath(&decodePath, p) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decodePath, &workPath, 1) == -1)
+        return -1;
+    uint16_t find_p;
+    i_index_t find_i;
+    if (s_search(workPath.i, decodePath.content[decodePath.p - 1], &find_i, &find_p) != -1) {
+        fputs("file exists\n", stderr);
+        return -1;
+    }
+    if (s_newFile(workPath.i, decodePath.content[decodePath.p - 1], &find_i) == -1) {
+        return -1;
+    }
+    return 0;
+}
+
+int fs_rm(char * p) {
+    path decodePath;
+    path workPath;
+    if (s_handlepath(&decodePath, p) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decodePath, &workPath, 1) == -1)
+        return -1;
+    uint16_t find_p;
+    i_index_t find_i;
+    if (s_search(workPath.i, decodePath.content[decodePath.p - 1], &find_i, &find_p) == -1) {
+        fputs("No such file\n", stderr);
+        return -1;
+    }
+    if (i_nodes[find_i].i_type != FILETYPE) {
+        fputs("not a file\n", stderr);
+        return -1;
+    }
+    if (s_unlinkFile(workPath.i, find_i, find_p) == -1) {
+        return -1;
+    }
+    return 0;
+}
+
+int fs_read(char * p, char * buffer) {
+    
+}
+
+int fs_write(char * p, char * buffer, uint16_t pos) {
+
 }

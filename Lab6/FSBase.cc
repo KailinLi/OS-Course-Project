@@ -8,6 +8,12 @@ path current;
 const uint8_t DIRTYPE = 0;
 const uint8_t FILETYPE = 1;
 
+const uint8_t uid = 0;
+const uint8_t gid = 0;
+
+uint8_t default_file_right[3] = {6, 6, 4};
+uint8_t default_dir_right[3] = {7, 6, 4};
+
 const int ENTRYSIZE = (1 << 5);
 
 int s_newNode(i_index_t *i, b_index_t *b) {
@@ -104,6 +110,9 @@ int s_newFile(i_index_t d, char *name, i_index_t *new_i) {
         return -1;
     }
     i_nodes[*new_i].i_type = FILETYPE;
+    i_nodes[*new_i].i_right[0] = default_file_right[0];
+    i_nodes[*new_i].i_right[1] = default_file_right[1];
+    i_nodes[*new_i].i_right[2] = default_file_right[2];
     return 0;
 }
 
@@ -171,6 +180,9 @@ int s_newdir(i_index_t d, char * name, i_index_t *new_i) {
         return -1;
     }
     i_nodes[*new_i].i_type = DIRTYPE;
+    i_nodes[*new_i].i_right[0] = default_dir_right[0];
+    i_nodes[*new_i].i_right[1] = default_dir_right[1];
+    i_nodes[*new_i].i_right[2] = default_dir_right[2];
     return 0;
 }
 
@@ -243,6 +255,8 @@ int s_search(i_index_t d, char * name, i_index_t *i, uint16_t *pos) {
 }
 
 int s_write(i_index_t i, char * input, uint16_t pos) {
+    if (pos < i_nodes[i].i_size)
+        i_nodes[i].i_size = pos;
     if (i_nodes[i].i_size + strlen(input) + 1 > (1 << 13)) {
         fputs("file is full\n", stderr);
         return -1;

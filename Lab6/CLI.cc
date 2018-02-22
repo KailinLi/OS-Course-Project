@@ -22,19 +22,50 @@ int main (int argc, char *argv[]) {
     // fs_load();
     // fs_init();
     // fs_init();
+
+
     fs_load();
-    char input[20] = "big ";
+    char input[20] = "big mouse";
     char name[20] = "hello";
     i_index_t i;
     s_newFile(current.i, name, &i);
     strcpy(name, "world");
     i_index_t j;
     s_newFile(current.i, name, &j);
-    s_write(j, input, 0);
+    s_write(j, input, 5);
     strcpy(input, "cat");
     s_write(j, input, 0);
     s_read(j, name);
-    puts(name);
+
+    
+    // puts(name);
+
+    fs_ls("", 3);
+
+    strcpy(input, "./dir");
+
+    fs_mkdir(input);
+    fs_ls("", 3);
+
+    strcpy(input, "../world");
+
+    fs_rmdir(input);
+    fs_ls("", 3);
+
+    strcpy(input, "../dir");
+
+    fs_cd(input);
+
+    fs_ls("", 3);
+
+    strcpy(input, "../hello");
+    fs_rm(input);
+    fs_ls("", 3);
+    strcpy(input, "..");
+    fs_cd(input);
+    fs_ls("", 3);
+
+
     // s_unlinkFile(current.i, i, 2);
     // strcpy(name, "hehe");
     // s_newdir(current.i, name, &i);
