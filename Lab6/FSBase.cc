@@ -43,7 +43,7 @@ int s_addEntry(i_index_t d, char *name, i_index_t i) {
         return -1;
     }
     b_index_t b;
-    if (!(i_nodes[d].i_size % BLOCKSIZE) && !i_nodes[d].i_size) {
+    if (!(i_nodes[d].i_size % BLOCKSIZE) && i_nodes[d].i_size) {
         b = b_alloc();
         i_nodes[d].i_block[i_nodes[d].i_size / BLOCKSIZE] = b;
     }
@@ -282,6 +282,8 @@ int s_write(i_index_t i, char * input, uint16_t pos) {
             i_nodes[i].i_size += leftSpace;
             b = b_alloc();
             i_nodes[i].i_block[i_nodes[i].i_size / BLOCKSIZE] = b;
+            leftSpace = BLOCKSIZE;
+            offset = 0;
         }
     }
     --i_nodes[i].i_size;    // '\0'

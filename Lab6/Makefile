@@ -9,7 +9,7 @@ FSBase.o: FSBase.h FSBase.cc AllocManager.h
 	$(CC) FSBase.cc -c -g
 AllocManager.o: AllocManager.h AllocManager.cc StoreManager.h
 	$(CC) AllocManager.cc -c -g
-StoreManager.o: StoreManager.h StoreManager.cc
+StoreManager.o: StoreManager.h StoreManager.cc Color.h
 	$(CC) StoreManager.cc -c -g
 clean:
 	rm *.o

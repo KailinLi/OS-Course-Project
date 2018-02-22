@@ -6,6 +6,7 @@ i_index_t i_alloc() {
         for (i_index_t j = 0; j < (1 << 3); ++j) {
             if (!(t & (1 << 7))) {
                 i_bitmap[i] |= (1 << (7 - j));
+                printf("alloc i: %d\n", i * 8 + j);
                 return i * 8 + j;
             }
             t <<= 1;
@@ -15,6 +16,7 @@ i_index_t i_alloc() {
 }
 
 void i_free(i_index_t index) {
+    printf("free i: %d\n", index);
     i_index_t i = index / 8;
     i_index_t j = index - (8 * i);
     i_bitmap[i] &= ~(1 << (7 - j));
@@ -26,6 +28,7 @@ b_index_t b_alloc() {
         for (b_index_t j = 0; j < (1 << 3); ++j) {
             if (!(t & (1 << 7))) {
                 b_bitmap[i] |= (1 << (7 - j));
+                printf("alloc b: %d\n", i * 8 + j);
                 return i * 8 + j;
             }
             t <<= 1;
@@ -35,6 +38,7 @@ b_index_t b_alloc() {
 }
 
 void b_free(b_index_t index) {
+    printf("free b: %d\n", index);
     b_index_t i = index / 8;
     b_index_t j = index - (8 * i);
     b_bitmap[i] &= ~(1 << (7 - j));

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "Color.h"
 
 typedef uint16_t block_t;
 typedef uint16_t i_index_t;

@@ -10,6 +10,8 @@
         "memory": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "__string": "cpp",
+        "istream": "cpp"
     }
 }
