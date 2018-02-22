@@ -272,6 +272,7 @@ int fs_rmdir(char * p) {
         }
         free(tmp_p);
     }
+    free(entry);
     if (s_deletedir(workPath.i, find_i, find_p) == -1) {
         free(save_p);
         return -1;

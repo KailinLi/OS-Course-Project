@@ -33,9 +33,4 @@ int fs_write(char *, char *, uint16_t);
 int fs_save();
 int fs_showBash();
 
-// int fs_touch(i_index_t, char *);
-
-// d_entry * fs_ls();
-
-
 #endif // FSAPI_H
