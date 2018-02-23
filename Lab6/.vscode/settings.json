@@ -12,6 +12,7 @@
         "string_view": "cpp",
         "utility": "cpp",
         "__string": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "__bit_reference": "cpp"
     }
 }

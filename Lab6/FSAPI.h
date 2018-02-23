@@ -6,9 +6,11 @@
 extern char inputName[30];
 
 extern const i_index_t HOMEINODE;
+// extern const uint8_t USERSIZE;
+#define USERSIZE 10
 
-extern char uid_name[20][30];
-extern char gid_name[20][30];
+extern char uid_name[USERSIZE][30];
+extern char gid_name[USERSIZE][30];
 extern char host_name[30];
 
 int fs_init();
@@ -32,5 +34,13 @@ int fs_write(char *, char *, uint16_t);
 
 int fs_save();
 int fs_showBash();
+
+int fs_chmod(char *, char *);
+
+int fs_adduser(char *);
+int fs_deleteuser(char *);
+int fs_changeuser(char *);
+
+int fs_right(i_index_t, uint8_t);
 
 #endif // FSAPI_H

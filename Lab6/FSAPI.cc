@@ -4,8 +4,14 @@ char inputName[30];
 
 const i_index_t HOMEINODE = 0;
 
-char uid_name[20][30];
-char gid_name[20][30];
+const uint8_t O_READ = (1 << 2);
+const uint8_t O_WRITE = (1 << 1);
+const uint8_t O_EXCL = 1;
+
+// const uint8_t USERSIZE = 10;
+
+char uid_name[USERSIZE][30];
+char gid_name[USERSIZE][30];
 char host_name[30];
 
 int fs_init() {
@@ -47,7 +53,7 @@ int fs_load() {
     }
     strcpy(host_name, "Codedo");
     strcpy(uid_name[0], "root");
-    strcpy(gid_name[0], "wheel");
+    strcpy(gid_name[0], "root");
     strcpy(current.content[current.p++], "/");
     current.i = HOMEINODE;
     return 0;
@@ -75,6 +81,10 @@ char * fs_pwd() {
 
 int fs_decode(path * decodePath, path * workPath, int pos) {
     if (!strcmp((*decodePath).content[0], "/")) {  // absolute path
+        if (!fs_right(HOMEINODE, O_EXCL)) {
+            fputs("Permission denied\n", stderr);
+            return -1;
+        }
         (*workPath).i = HOMEINODE;
         (*workPath).p = 1;
         strcpy((*workPath).content[0], "/");
@@ -92,6 +102,10 @@ int fs_decode(path * decodePath, path * workPath, int pos) {
         }
         if (i_nodes[find_i].i_type != DIRTYPE) {
             fputs("not a directory\n", stderr);
+            return -1;
+        }
+        if (!fs_right(find_i, O_EXCL)) {
+            fputs("Permission denied\n", stderr);
             return -1;
         }
         s_changedir(workPath, (*decodePath).content[index], find_i);
@@ -212,6 +226,10 @@ int fs_mkdir (char * p) {
         fputs("directory exists\n", stderr);
         return -1;
     }
+    if (!fs_right(workPath.i, O_WRITE)) {
+        fputs("Permission denied\n", stderr);
+        return -1;
+    }
     if (s_newdir(workPath.i, decodePath.content[decodePath.p - 1], &find_i) == -1) {
         return -1;
     }
@@ -245,6 +263,11 @@ int fs_rmdir(char * p) {
     }
     if (i_nodes[find_i].i_type != DIRTYPE) {
         fputs("not a directory\n", stderr);
+        free(save_p);
+        return -1;
+    }
+    if (!fs_right(find_i, O_EXCL | O_READ | O_WRITE)) {
+        fputs("Permission denied\n", stderr);
         free(save_p);
         return -1;
     }
@@ -296,6 +319,10 @@ int fs_touch(char * p) {
         fputs("file exists\n", stderr);
         return -1;
     }
+    if (!fs_right(workPath.i, O_WRITE)) {
+        fputs("Permission denied\n", stderr);
+        return -1;
+    }
     if (s_newFile(workPath.i, decodePath.content[decodePath.p - 1], &find_i) == -1) {
         return -1;
     }
@@ -321,6 +348,10 @@ int fs_rm(char * p) {
         fputs("not a file\n", stderr);
         return -1;
     }
+    if (!fs_right(find_i, O_WRITE)) {
+        fputs("Permission denied\n", stderr);
+        return -1;
+    }
     if (s_unlinkFile(workPath.i, find_i, find_p) == -1) {
         return -1;
     }
@@ -342,6 +373,10 @@ int fs_read(char * p, char * buffer) {
         fputs("No such file\n", stderr);
         return -1;
     }
+    if (!fs_right(find_i, O_READ)) {
+        fputs("Permission denied\n", stderr);
+        return -1;
+    }
     s_read(find_i, buffer);
     return 0;
 }
@@ -361,6 +396,10 @@ int fs_write(char * p, char * buffer, uint16_t pos) {
         fputs("No such file\n", stderr);
         return -1;
     }
+    if (!fs_right(find_i, O_WRITE)) {
+        fputs("Permission denied\n", stderr);
+        return -1;
+    }
     if (s_write(find_i, buffer, pos) == -1) {
         return -1;
     }
@@ -374,7 +413,7 @@ int fs_save() {
 int fs_showBash() {
     char *pwd = fs_pwd();
     printf(RED);
-    printf("%s@%s:", uid_name[0], host_name);
+    printf("%s@%s:", uid_name[uid], host_name);
     printf(MAG);
     printf("%s ", pwd);
     printf(RED);
@@ -382,4 +421,86 @@ int fs_showBash() {
     printf(RESET);
     free(pwd);
     return 0;
+}
+
+int fs_chmod(char * p, char * right) {
+    path decodePath;
+    path workPath;
+    if (s_handlepath(&decodePath, p) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decodePath, &workPath, 1) == -1)
+        return -1;
+    uint16_t find_p;
+    i_index_t find_i;
+    if (s_search(workPath.i, decodePath.content[decodePath.p - 1], &find_i, &find_p) == -1) {
+        fputs("No such file\n", stderr);
+        return -1;
+    }
+    uint8_t decode_right[3];
+    for (int i = 0; i < 3; ++i) {
+        decode_right[i] = right[i] - '0';
+        if (decode_right[i] < 0 || decode_right[i] > 7) {
+            fputs("input error\n", stderr);
+            return -1;
+        }
+    }
+    s_chmodFile(find_i, decode_right);
+    return 0;
+}
+
+int fs_adduser (char * name) {
+    for (int i = 0; i < USERSIZE; ++i) {
+        if (!strcmp(name, uid_name[i])) {
+            fputs("user exists\n", stderr);
+            return -1;
+        }
+    }
+    for (int i = 0; i < USERSIZE; ++i) {
+        if (!strlen(uid_name[i])) {
+            strcpy(uid_name[i], name);
+            return 0;
+        }
+    }
+    fputs("can not add user\n", stderr);
+    return -1;
+}
+
+int fs_deleteuser (char * name) {
+    for (int i = 0; i < USERSIZE; ++i) {
+        if (!strcmp(name, uid_name[i])) {
+            if (i == uid) {
+                fputs("can not delete current user\n", stderr);
+                return -1;
+            }
+            strcpy(uid_name[i], "");
+            return 0;
+        }
+    }
+    fputs("user not find\n", stderr);
+    return -1;
+}
+
+int fs_changeuser (char * name) {
+    for (int i = 0; i < USERSIZE; ++i) {
+        if (!strcmp(name, uid_name[i])) {
+            uid = i;
+            return 0;
+        }
+    }
+    fputs("user not find\n", stderr);
+    return -1;
+}
+
+int fs_right (i_index_t i, uint8_t r) {
+    if (i_nodes[i].i_uid == uid) {
+        return (i_nodes[i].i_right[0] & r) == r;
+    }
+    else if (i_nodes[i].i_gid == gid) {
+        return (i_nodes[i].i_right[1] & r) == r;
+    }
+    else {
+        return (i_nodes[i].i_right[2] & r) == r;
+    }
 }

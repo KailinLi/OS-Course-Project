@@ -19,8 +19,14 @@ int main (int argc, char *argv[]) {
         getline(&input, &length, stdin);
         if (fs_divide(input, param, &length) == -1)
             continue;
-        if(!strcmp(param[0], "exit") || !strcmp(param[0], "q"))
+        if(!strcmp(param[0], "exit")) {
+            fs_save();
             break;
+        }
+        else if (!strcmp(param[0], "q")) {
+            fclose(fp);
+            break;
+        }
         else if (!strcmp(param[0], "ls")) {
             uint8_t mask = 0;
             strcpy(input, "");
@@ -95,8 +101,8 @@ int main (int argc, char *argv[]) {
             for (int i = 1; i < length; ++i) {
                 strcpy(input, param[i]);
                 char *buffer = (char *)malloc(sizeof(char) * (1 << 13));
-                fs_read(input, buffer);
-                puts(buffer);
+                if (fs_read(input, buffer) != -1)
+                    puts(buffer);
                 free(buffer);
             }
         }
@@ -183,6 +189,37 @@ int main (int argc, char *argv[]) {
                 fs_write(input, buffer, 0);
                 free(buffer);
             }
+        }
+        else if (!strcmp(param[0], "chmod")) {
+            if (length != 3) {
+                fputs("usage: chmod [0-7][0-7][0-7] file ...\n", stderr);
+                continue;
+            }
+            fs_chmod(param[2], param[1]);
+        }
+        else if (!strcmp(param[0], "adduser")) {
+            if (length != 2) {
+                fputs("usage: adduser new username ...\n", stderr);
+                continue;
+            }
+            fs_adduser(param[1]);
+        }
+        else if (!strcmp(param[0], "userdel")) {
+            if (length != 2) {
+                fputs("usage: userdel username ...\n", stderr);
+                continue;
+            }
+            fs_deleteuser(param[1]);
+        }
+        else if (!strcmp(param[0], "su")) {
+            if (length == 1) {
+                strcpy(param[1], "root");
+            }
+            else if (length != 2) {
+                fputs("usage: su [username] ...\n", stderr);
+                continue;
+            }
+            fs_changeuser(param[1]);
         }
         else
             printf("command not found\n");

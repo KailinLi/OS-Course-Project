@@ -17,8 +17,8 @@ extern const int ENTRYSIZE;
 extern const uint8_t DIRTYPE;
 extern const uint8_t FILETYPE;
 
-extern const uint8_t uid;
-extern const uint8_t gid;
+extern uint8_t uid;
+extern uint8_t gid;
 
 extern uint8_t default_file_right[3];
 extern uint8_t default_dir_right[3];
@@ -29,7 +29,7 @@ typedef struct D_entry {
 } d_entry;
 
 int s_newNode(i_index_t *, b_index_t *);
-void s_cleanINode(i_index_t);
+void s_cleanINode(i_index_t, b_index_t);
 
 int s_addEntry(i_index_t, char *, i_index_t);
 
@@ -51,5 +51,7 @@ int s_search(i_index_t, char *, i_index_t*, uint16_t*);
 
 int s_write(i_index_t, char *, uint16_t);
 int s_read(i_index_t, char *);
+
+int s_chmodFile(i_index_t, uint8_t *);
 
 #endif // FSBASE_H

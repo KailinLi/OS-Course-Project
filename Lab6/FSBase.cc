@@ -8,11 +8,11 @@ path current;
 const uint8_t DIRTYPE = 0;
 const uint8_t FILETYPE = 1;
 
-const uint8_t uid = 0;
-const uint8_t gid = 0;
+uint8_t uid = 0;
+uint8_t gid = 0;
 
 uint8_t default_file_right[3] = {6, 6, 4};
-uint8_t default_dir_right[3] = {7, 6, 4};
+uint8_t default_dir_right[3] = {7, 7, 4};
 
 const int ENTRYSIZE = (1 << 5);
 
@@ -23,11 +23,11 @@ int s_newNode(i_index_t *i, b_index_t *b) {
         i_free(*i);
         return -1;
     }
-    s_cleanINode(*i);
+    s_cleanINode(*i, *b);
     i_nodes[*i].i_block[0] = *b;
     return 0;
 }
-void s_cleanINode(i_index_t i) {
+void s_cleanINode(i_index_t i, b_index_t b) {
     i_nodes[i].i_size = 0;
     i_nodes[i].i_nlink = 0;
     i_nodes[i].i_type = 0;
@@ -35,6 +35,8 @@ void s_cleanINode(i_index_t i) {
     i_nodes[i].i_uid = 0;
     i_nodes[i].i_gid = 0;
     memset(i_nodes[i].i_block, 0, sizeof(i_nodes[i].i_block));
+    fseek(fp, b * BLOCKSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+    fwrite("", sizeof(char), 1, fp);
 }
 
 int s_addEntry(i_index_t d, char *name, i_index_t i) {
@@ -110,6 +112,7 @@ int s_newFile(i_index_t d, char *name, i_index_t *new_i) {
         return -1;
     }
     i_nodes[*new_i].i_type = FILETYPE;
+    i_nodes[*new_i].i_uid = uid;
     i_nodes[*new_i].i_right[0] = default_file_right[0];
     i_nodes[*new_i].i_right[1] = default_file_right[1];
     i_nodes[*new_i].i_right[2] = default_file_right[2];
@@ -151,6 +154,7 @@ int s_newdir(i_index_t d, char * name, i_index_t *new_i) {
         return -1;
     }
     i_nodes[*new_i].i_type = DIRTYPE;
+    i_nodes[*new_i].i_uid = uid;
     i_nodes[*new_i].i_right[0] = default_dir_right[0];
     i_nodes[*new_i].i_right[1] = default_dir_right[1];
     i_nodes[*new_i].i_right[2] = default_dir_right[2];
@@ -273,5 +277,12 @@ int s_read(i_index_t i, char * output) {
     b = i_nodes[i].i_block[k];
     fseek(fp, b * BLOCKSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
     fread(output + read_offset, sizeof(char), i_nodes[i].i_size % BLOCKSIZE + 1, fp);
+    return 0;
+}
+
+int s_chmodFile(i_index_t i, uint8_t * right) {
+    i_nodes[i].i_right[0] = right[0];
+    i_nodes[i].i_right[1] = right[1];
+    i_nodes[i].i_right[2] = right[2];
     return 0;
 }
