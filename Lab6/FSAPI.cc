@@ -605,6 +605,18 @@ int fs_ln (char * p, char * name) {
     return 0;
 }
 
+int fs_mv(char * p, char * name) {
+    char save_p[1000];
+    strcpy(save_p, p);
+    if (fs_ln(p, name) == -1) {
+        return -1;
+    }
+    if (fs_rm(save_p) == -1) {
+        return -1;
+    }
+    return 0;
+}
+
 int right (i_index_t i, uint8_t r) {
     if (i_nodes[i].i_uid == uid) {
         return (i_nodes[i].i_right[0] & r) == r;

@@ -40,6 +40,7 @@ int fs_deleteuser(char *);
 int fs_changeuser(char *);
 
 int fs_ln(char *, char *);
+int fs_mv(char *, char *);
 
 int right(i_index_t, uint8_t);
 

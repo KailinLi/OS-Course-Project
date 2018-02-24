@@ -234,6 +234,13 @@ int main (int argc, char *argv[]) {
             }
             fs_ln(param[1], param[2]);
         }
+        else if (!strcmp(param[0], "mv")) {
+            if (length != 3) {
+                fputs("usage: mv file newfile...\n", stderr);
+                continue;
+            }
+            fs_mv(param[1], param[2]);
+        }
         else
             printf("command not found\n");
     }
