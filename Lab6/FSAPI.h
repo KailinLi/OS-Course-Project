@@ -3,8 +3,6 @@
 
 #include "FSBase.h"
 
-extern char inputName[30];
-
 extern const i_index_t HOMEINODE;
 // extern const uint8_t USERSIZE;
 #define USERSIZE 10
@@ -41,6 +39,11 @@ int fs_adduser(char *);
 int fs_deleteuser(char *);
 int fs_changeuser(char *);
 
-int fs_right(i_index_t, uint8_t);
+int fs_ln(char *, char *);
+
+int right(i_index_t, uint8_t);
+
+int readUID();
+int writeUID();
 
 #endif // FSAPI_H

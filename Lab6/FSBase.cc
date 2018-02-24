@@ -123,6 +123,19 @@ int s_unlinkFile(i_index_t d, i_index_t i, uint16_t pos) {
     if (--i_nodes[i].i_nlink == 0) {
         s_delete(d, i, pos);
     }
+    else {
+        uint16_t size = i_nodes[d].i_size / BLOCKSIZE;
+        uint16_t offset = i_nodes[d].i_size - (BLOCKSIZE * size) - ENTRYSIZE;
+        block_t b = i_nodes[d].i_block[size];
+        fseek(fp, b * BLOCKSIZE + offset + HEADSIZE * BLOCKSIZE, SEEK_SET);
+        uint8_t buffer[ENTRYSIZE];
+        fread(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+        b = i_nodes[d].i_block[pos / (BLOCKSIZE / ENTRYSIZE)];
+        offset = pos % (BLOCKSIZE / ENTRYSIZE);
+        fseek(fp, b * BLOCKSIZE + offset * ENTRYSIZE + HEADSIZE * BLOCKSIZE, SEEK_SET);
+        fwrite(buffer, sizeof(uint8_t), ENTRYSIZE, fp);
+        i_nodes[d].i_size -= ENTRYSIZE;
+    }
     return 0;
 }
 
@@ -197,7 +210,7 @@ int s_handlepath(path * p, char *input) {
         ++pos;
         ++before_pos;
     }
-    int size = strlen(input) + 1;
+    int size = strlen(input);
     while (pos < size) {
         while (input[pos] != '/' && input[pos] != '\0')
             ++pos;

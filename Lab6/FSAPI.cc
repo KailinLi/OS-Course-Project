@@ -1,7 +1,5 @@
 #include "FSAPI.h"
 
-char inputName[30];
-
 const i_index_t HOMEINODE = 0;
 
 const uint8_t O_READ = (1 << 2);
@@ -28,6 +26,7 @@ int fs_init() {
         fputs("root error\n", stderr);
         return -1;
     }
+    char inputName[30];
     strcpy(inputName, ".");
     if (s_addEntry(i, inputName, i) == -1) {
         fputs("error\n", stderr);
@@ -42,6 +41,42 @@ int fs_init() {
     }
     strcpy(current.content[current.p++], "/");
     current.i = i;
+    strcpy(inputName, "/etc");
+    strcpy(uid_name[0], "root");
+    if (fs_mkdir(inputName)) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    strcpy(inputName, "/bin");
+    if (fs_mkdir(inputName)) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    strcpy(inputName, "/usr");
+    if (fs_mkdir(inputName)) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    char tmp[4] = "754";
+    strcpy(inputName, "/etc");
+    fs_chmod(inputName, tmp);
+    strcpy(inputName, "/etc/passwd");
+    if (fs_touch(inputName) == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    strcpy(inputName, "/etc/passwd");
+    strcpy(tmp, "644");
+    fs_chmod(inputName, tmp);
+    if (writeUID() == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
+    strcpy(inputName, "/home");
+    if (fs_mkdir(inputName) == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
     return 0;
 }
 
@@ -52,7 +87,11 @@ int fs_load() {
         return -1;
     }
     strcpy(host_name, "Codedo");
-    strcpy(uid_name[0], "root");
+    // strcpy(uid_name[0], "root");
+    if (readUID() == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
     strcpy(gid_name[0], "root");
     strcpy(current.content[current.p++], "/");
     current.i = HOMEINODE;
@@ -81,7 +120,7 @@ char * fs_pwd() {
 
 int fs_decode(path * decodePath, path * workPath, int pos) {
     if (!strcmp((*decodePath).content[0], "/")) {  // absolute path
-        if (!fs_right(HOMEINODE, O_EXCL)) {
+        if (!right(HOMEINODE, O_EXCL)) {
             fputs("Permission denied\n", stderr);
             return -1;
         }
@@ -104,7 +143,7 @@ int fs_decode(path * decodePath, path * workPath, int pos) {
             fputs("not a directory\n", stderr);
             return -1;
         }
-        if (!fs_right(find_i, O_EXCL)) {
+        if (!right(find_i, O_EXCL)) {
             fputs("Permission denied\n", stderr);
             return -1;
         }
@@ -226,7 +265,7 @@ int fs_mkdir (char * p) {
         fputs("directory exists\n", stderr);
         return -1;
     }
-    if (!fs_right(workPath.i, O_WRITE)) {
+    if (!right(workPath.i, O_WRITE)) {
         fputs("Permission denied\n", stderr);
         return -1;
     }
@@ -266,7 +305,7 @@ int fs_rmdir(char * p) {
         free(save_p);
         return -1;
     }
-    if (!fs_right(find_i, O_EXCL | O_READ | O_WRITE)) {
+    if (!right(find_i, O_EXCL | O_READ | O_WRITE)) {
         fputs("Permission denied\n", stderr);
         free(save_p);
         return -1;
@@ -319,7 +358,7 @@ int fs_touch(char * p) {
         fputs("file exists\n", stderr);
         return -1;
     }
-    if (!fs_right(workPath.i, O_WRITE)) {
+    if (!right(workPath.i, O_WRITE)) {
         fputs("Permission denied\n", stderr);
         return -1;
     }
@@ -348,7 +387,7 @@ int fs_rm(char * p) {
         fputs("not a file\n", stderr);
         return -1;
     }
-    if (!fs_right(find_i, O_WRITE)) {
+    if (!right(find_i, O_WRITE)) {
         fputs("Permission denied\n", stderr);
         return -1;
     }
@@ -373,7 +412,11 @@ int fs_read(char * p, char * buffer) {
         fputs("No such file\n", stderr);
         return -1;
     }
-    if (!fs_right(find_i, O_READ)) {
+    if (i_nodes[find_i].i_type != FILETYPE) {
+        fputs("not a file\n", stderr);
+        return -1;
+    }
+    if (!right(find_i, O_READ)) {
         fputs("Permission denied\n", stderr);
         return -1;
     }
@@ -396,7 +439,11 @@ int fs_write(char * p, char * buffer, uint16_t pos) {
         fputs("No such file\n", stderr);
         return -1;
     }
-    if (!fs_right(find_i, O_WRITE)) {
+    if (i_nodes[find_i].i_type != FILETYPE) {
+        fputs("not a file\n", stderr);
+        return -1;
+    }
+    if (!right(find_i, O_WRITE)) {
         fputs("Permission denied\n", stderr);
         return -1;
     }
@@ -417,7 +464,7 @@ int fs_showBash() {
     printf(MAG);
     printf("%s ", pwd);
     printf(RED);
-    printf("$ ");
+    printf("%s ", (uid == 0) ? "#" : "$");
     printf(RESET);
     free(pwd);
     return 0;
@@ -460,6 +507,16 @@ int fs_adduser (char * name) {
     for (int i = 0; i < USERSIZE; ++i) {
         if (!strlen(uid_name[i])) {
             strcpy(uid_name[i], name);
+            if (writeUID() == -1) {
+                fputs("error\n", stderr);
+                return -1;
+            }
+            char input[40] = "/home/";
+            strcat(input, name);
+            if (fs_mkdir(input) == -1) {
+                fputs("error\n", stderr);
+                return -1;
+            }
             return 0;
         }
     }
@@ -475,6 +532,16 @@ int fs_deleteuser (char * name) {
                 return -1;
             }
             strcpy(uid_name[i], "");
+            if (writeUID() == -1) {
+                fputs("error\n", stderr);
+                return -1;
+            }
+            char input[40] = "/home/";
+            strcat(input, name);
+            if (fs_rmdir(input) == -1) {
+                fputs("error\n", stderr);
+                return -1;
+            }
             return 0;
         }
     }
@@ -493,7 +560,52 @@ int fs_changeuser (char * name) {
     return -1;
 }
 
-int fs_right (i_index_t i, uint8_t r) {
+int fs_ln (char * p, char * name) {
+    path decodePath;
+    path workPath;
+    if (s_handlepath(&decodePath, p) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decodePath, &workPath, 1) == -1)
+        return -1;
+    uint16_t find_p;
+    i_index_t find_i;
+    if (s_search(workPath.i, decodePath.content[decodePath.p - 1], &find_i, &find_p) == -1) {
+        fputs("no such file\n", stderr);
+        return -1;
+    }
+    if (i_nodes[find_i].i_type != FILETYPE) {
+        fputs("not a file\n", stderr);
+        return -1;
+    }
+    path decode;
+    path work;
+    if (s_handlepath(&decode, name) == -1) {
+        fputs("no input\n", stderr);
+        return -1;
+    }
+    if (fs_decode(&decode, &work, 1) == -1)
+        return -1;
+    uint16_t find_new_p;
+    i_index_t find_new_i;
+    if (s_search(work.i, decode.content[decode.p - 1], &find_new_i, &find_new_p) != -1) {
+        fputs("file exists\n", stderr);
+        return -1;
+    }
+    if (!right(work.i, O_WRITE)) {
+        fputs("Permission denied\n", stderr);
+        return -1;
+    }
+    if (s_addEntry(work.i, decode.content[decode.p - 1], find_i) == -1) {
+        fputs("error", stderr);
+        return -1;
+    }
+    ++i_nodes[find_new_i].i_nlink;
+    return 0;
+}
+
+int right (i_index_t i, uint8_t r) {
     if (i_nodes[i].i_uid == uid) {
         return (i_nodes[i].i_right[0] & r) == r;
     }
@@ -503,4 +615,36 @@ int fs_right (i_index_t i, uint8_t r) {
     else {
         return (i_nodes[i].i_right[2] & r) == r;
     }
+}
+
+int readUID () {
+    char path[15] = "/etc/passwd";
+    char buffer[USERSIZE * 30 + 1];
+    if(fs_read(path, buffer) == -1) return -1;
+    int pos = 0;
+    int index = 0;
+    int before_pos = pos;
+    int size = strlen(buffer) + 1;
+    while (pos < size) {
+        while (buffer[pos] != '\n' && buffer[pos] != '\0')
+            ++pos;
+        buffer[pos] = '\0';
+        strcpy(uid_name[index++], buffer + before_pos);
+        before_pos = ++pos;
+    }
+    return 0;
+}
+
+int writeUID () {
+    char buffer[USERSIZE * 30 + 1];
+    memset(buffer, 0, sizeof(buffer));
+    int pos = 0;
+    for (int i = 0; i < USERSIZE; ++i) {
+        // if (uid_name[i][0] == '\0') continue;
+        strcpy(buffer + pos, uid_name[i]);
+        pos += strlen(uid_name[i]);
+        buffer[pos++] = '\n';
+    }
+    char path[15] = "/etc/passwd";
+    return fs_write(path, buffer, 0);
 }

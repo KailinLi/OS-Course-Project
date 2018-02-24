@@ -17,6 +17,9 @@ int main (int argc, char *argv[]) {
     while (1) {
         fs_showBash();
         getline(&input, &length, stdin);
+        if (!strcmp(input, "\n")) continue; // ignore
+        for (int i = strlen(input) - 1; i >= 0 && input[i] == ' '; --i)
+            input[i] = '\0';    // delete space
         if (fs_divide(input, param, &length) == -1)
             continue;
         if(!strcmp(param[0], "exit")) {
@@ -48,7 +51,7 @@ int main (int argc, char *argv[]) {
         }
         else if (!strcmp(param[0], "cd")) {
             if (length == 1) {
-                strcpy(input, "/");
+                strcpy(param[1], "/");
             }
             strcpy(input, param[1]);
             fs_cd(input);
@@ -220,6 +223,16 @@ int main (int argc, char *argv[]) {
                 continue;
             }
             fs_changeuser(param[1]);
+        }
+        else if (!strcmp(param[0], "clean")) {
+            system("clear");          
+        }
+        else if (!strcmp(param[0], "ln")) {
+            if (length != 3) {
+                fputs("usage: ln file newfile...\n", stderr);
+                continue;
+            }
+            fs_ln(param[1], param[2]);
         }
         else
             printf("command not found\n");
