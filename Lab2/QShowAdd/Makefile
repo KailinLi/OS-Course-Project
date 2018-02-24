@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I. -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtWidgets -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I. -I/usr/include/libdrm -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -I. -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtWidgets -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/kailin/Qt5.10.0/5.10.0/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -195,7 +195,6 @@ DIST          = /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_pre.pr
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/qt_config.prf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/toolchain.prf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/default_pre.prf \
@@ -367,7 +366,6 @@ Makefile: QShowAdd.pro /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++/qma
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/qt_config.prf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/toolchain.prf \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/default_pre.prf \
@@ -531,7 +529,6 @@ Makefile: QShowAdd.pro /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++/qma
 /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/qt_config.prf:
 /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++/qmake.conf:
 /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/spec_post.prf:
-.qmake.stash:
 /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/exclusive_builds.prf:
 /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/toolchain.prf:
 /home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/features/default_pre.prf:
@@ -719,7 +716,7 @@ moc_add.cpp: /home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtCore/QObject \
 		add.h \
 		moc_predefs.h \
 		/home/kailin/Qt5.10.0/5.10.0/gcc_64/bin/moc
-	/home/kailin/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/media/psf/Home/Documents/Coding/OS-Course-Project/Lab2/QShowAdd -I/media/psf/Home/Documents/Coding/OS-Course-Project/Lab2/QShowAdd -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtWidgets -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/9.0.0/include -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include add.h -o moc_add.cpp
+	/home/kailin/Qt5.10.0/5.10.0/gcc_64/bin/moc $(DEFINES) --include ./moc_predefs.h -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/mkspecs/linux-g++ -I/media/psf/Home/Documents/Coding/OS-Course-Project/Lab2/QShowAdd -I/media/psf/Home/Documents/Coding/OS-Course-Project/Lab2/QShowAdd -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtWidgets -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtGui -I/home/kailin/Qt5.10.0/5.10.0/gcc_64/include/QtCore -I/usr/include/c++/5 -I/usr/include/x86_64-linux-gnu/c++/5 -I/usr/include/c++/5/backward -I/usr/lib/gcc/x86_64-linux-gnu/5/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include add.h -o moc_add.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
