@@ -77,6 +77,11 @@ int fs_init() {
         fputs("error\n", stderr);
         return -1;
     }
+    strcpy(inputName, "/.bashrc");
+    if (fs_touch(inputName) == -1) {
+        fputs("error\n", stderr);
+        return -1;
+    }
     return 0;
 }
 
@@ -207,6 +212,8 @@ int fs_ls(char * p, uint8_t mask) {
         else
             i = 2;
         for (; i < length; ++i) {
+            if (entry[i].name[0] == '.' && !(mask & (1 << 1)))
+                continue;
             printf("%s", (i_nodes[entry[i].i].i_type == DIRTYPE) ? "d" : "-");
             printf("%s", (i_nodes[entry[i].i].i_right[0] & (1 << 2)) ? "r" : "-");
             printf("%s", (i_nodes[entry[i].i].i_right[0] & (1 << 1)) ? "w" : "-");
@@ -236,6 +243,8 @@ int fs_ls(char * p, uint8_t mask) {
         else
             i = 2;
         for (; i < length; ++i) {
+            if (entry[i].name[0] == '.' && !(mask & (1 << 1)))
+                continue;
             if (i_nodes[entry[i].i].i_type == DIRTYPE)
                 printf(BLU);
             printf("%s\n", entry[i].name);
