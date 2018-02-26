@@ -13,7 +13,6 @@
  
 static int device_num = 0;
 static char buffer[1024] = "mydev";  
-static int open_nr = 0;
 
 static int mydev_open(struct inode *inode, struct file *filp); 
 static int mydev_release(struct inode *inode, struct file* filp); 
@@ -31,15 +30,16 @@ static struct file_operations mydev_fops = {
 static int mydev_open(struct inode *inode, struct file *filp) 
 { 
     printk("\nMain device is %d, and the slave device is %d\n", MAJOR(inode->i_rdev), MINOR(inode->i_rdev)); 
-    if (open_nr == 0) { 
-        open_nr++;
-        try_module_get(THIS_MODULE);
-        return 0;
-    }  
-    else { 
-        printk(KERN_ALERT "Another process open the char device.\n");
-        return -1;
-    }  
+    try_module_get(THIS_MODULE);
+    // if (open_nr == 0) { 
+    //     open_nr++;
+    //     try_module_get(THIS_MODULE);
+    //     return 0;
+    // }  
+    // else { 
+    //     printk(KERN_ALERT "Another process open the char device.\n");
+    //     return -1;
+    // }  
 } 
  
 static ssize_t mydev_read(struct file *file, char __user *buf, size_t count, loff_t *f_pos) 
@@ -60,7 +60,7 @@ static ssize_t mydev_write(struct file *file, const char __user *buf, size_t cou
  
 static int mydev_release(struct inode *inode, struct file* filp) 
 { 
-    open_nr--;
+    // open_nr--;
     printk("The device is released!\n"); 
     module_put(THIS_MODULE); 
         return 0; 
