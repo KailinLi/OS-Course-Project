@@ -1,11 +1,11 @@
 #include <string.h> 
 #include <stdio.h> 
 #include <unistd.h>
- 
+const int SIZE = 1024;
 int main() {
     FILE * fp = NULL;
-    char buffer[1024]; 
-    char input[1024]; 
+    char buffer[SIZE]; 
+    char input[SIZE]; 
     memset(input, 0, sizeof(input)); 
     memset(buffer, 0, sizeof(buffer)); 
     fp = fopen("/dev/mydev", "r+");
@@ -16,11 +16,11 @@ int main() {
             break;
         }
         else if (!strcmp(input, "read")) {
-            fread(buffer, sizeof(char), 1024, fp);
+            fread(buffer, sizeof(char), SIZE, fp);
             printf("%s\n", buffer);
         }
         else {
-            fwrite(input, sizeof(char), 1024, fp);
+            fwrite(input, sizeof(char), SIZE, fp);
         }
     }
     fclose(fp);
