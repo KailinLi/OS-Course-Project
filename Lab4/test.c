@@ -1,40 +1,34 @@
-#include <sys/types.h> 
-#include <sys/stat.h> 
 #include <string.h> 
 #include <stdio.h> 
-#include <fcntl.h> 
 #include <unistd.h>
  
-int main(void) 
-{ 
-    int fd; 
-    char buf[1024]; 
-    char get[1024]; 
+int main() {
+    FILE *fp = NULL;
+    char buffer[1024]; 
+    char input[1024]; 
  
-    memset(get, 0, sizeof(get)); 
-    memset(buf, 0, sizeof(buf)); 
+    memset(input, 0, sizeof(input)); 
+    memset(buffer, 0, sizeof(buffer)); 
     printf("please enter a string you want input to mydriver:\n"); 
-    gets(get); 
+    // get(input); 
+    fp = fopen("/dev/mydev", "r+");
  
-    fd = open("/dev/mydev", O_RDWR, S_IRUSR|S_IWUSR);//打开设备 
+    // fd = open("/dev/mydev", O_RDWR, S_IRUSR|S_IWUSR);//打开设备 
  
-    if (fd > 0) { 
-        read(fd, &buf, sizeof(buf)); 
-        printf("The message in mydriver now is: %s\n", buf); 
+    if (fp != NULL) {
+        fread(buffer, sizeof(char), 1024, fp);
+        printf("The message in mydriver now is: %s\n", buffer); 
  
         //将输入写入设备 
-        write(fd, &get, sizeof(get)); 
+        // write(fd, &input, sizeof(input)); 
         //读出设备的信息并打印 
-        read(fd, &buf, sizeof(buf)); 
-        printf("The message changed to: %s\n", buf); 
-        sleep(1); 
-    }  
-    else { 
-        printf("OMG..."); 
-        return -1; 
-    } 
+        // read(fd, &buf, sizeof(buf)); 
+        // printf("The message changed to: %s\n", buf); 
+        // sleep(1); 
+    }
+    fclose(fp);
  
-    close(fd);//释放设备 
+    // close(fd);//释放设备 
  
     return 0; 
 } 
