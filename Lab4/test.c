@@ -18,7 +18,8 @@ int main() {
     if (fp != NULL) {
         fread(buffer, sizeof(char), 1024, fp);
         printf("The message in mydriver now is: %s\n", buffer); 
- 
+        strcpy(buffer, "message");
+        fwrite(buffer, sizeof(char), 1024, fp);
         //将输入写入设备 
         // write(fd, &input, sizeof(input)); 
         //读出设备的信息并打印 
