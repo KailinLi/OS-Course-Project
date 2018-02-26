@@ -2566,22 +2566,22 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
 
 asmlinkage int sys_mysyscall(const char* s_file, const char* t_file) { 
     int bytes_read, bytes_write; 
-    int from_fd, to_fd;
+    int s_fd, d_fd;
     char buffer[100]; 
     char *ptr;
     mm_segment_t old_fs;   
     old_fs = get_fs();
     set_fs(KERNEL_DS); 
-    if ((from_fd = sys_open(s_file, O_RDONLY, 0)) == -1)    
+    if ((s_fd = sys_open(s_file, O_RDONLY, 0)) == -1)    
         return -1;
-    if ((to_fd = sys_open(t_file, O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR)) == -1)    
+    if ((d_fd = sys_open(t_file, O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR)) == -1)    
         return -2;
-    while(bytes_read = sys_read(from_fd, buffer, 1)) {  
+    while(bytes_read = sys_read(s_fd, buffer, 1)) {  
         if((bytes_read == -1))
 			break;  
         else if(bytes_read > 0) {   
             ptr = buffer; 
-            while(bytes_write = sys_write(to_fd, ptr, bytes_read)) {  
+            while(bytes_write = sys_write(d_fd, ptr, bytes_read)) {  
                 if((bytes_write == -1))
 					break;  
                 else if(bytes_write == bytes_read)
